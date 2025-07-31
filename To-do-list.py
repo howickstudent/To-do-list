@@ -1,4 +1,5 @@
 from tkinter import *
+import json
 
 class ToDoList():
     def __init__(self, root): # the main thing that this function does is initializing and creating the container for the other frames.
@@ -11,6 +12,7 @@ class ToDoList():
         self.Frames["MenuFrame"] = self.MenuFrame()
         self.Frames["LoginFrame"] = self.LoginFrame()
         self.Frames["RegisterFrame"] = self.RegisFrame()
+        self.Frames["ToDoListFrame"] = self.todolistFrame()
         self.ShowFrame("MenuFrame")       # we then tell it the frame which will be at the top or the frame that will be showing by using a function.
 
     def ShowFrame(self, name):            # if this function is called, it will raise the frame which has the name we give to it.
@@ -59,21 +61,27 @@ class ToDoList():
         return loginFrame
     
     def LoginVerif(self, username, password):       # login verification
-        success = 0
+        successuser = 0
+        successpass = 0
+        iterate = 0
         try:
-            with open("RegisteredUsers.txt", "r") as file:  # it will read the file and once it finds the username and corresponding password, it will successfully log them in and change the login button to continure where it will lead them to the to do list program.
-                for i in file:
-                    fileuser, filepassword = i.strip().split(" ")
-                    if username == fileuser and password == filepassword:
-                        self.loginText.config(text="Successfully logged in!", fg="green")
-                        self.loginText.place(x=185, y=300)
-                        self.loginButton.config(text="Continue")
-                        success = 1
-                if success == 0:
-                    self.loginText.config(text="User not found.", fg="red")
+            with open("RegisteredUsers.json", "r") as file:  # it will read the file and once it finds the username and corresponding password, it will successfully log them in and change the login button to continure where it will lead them to the to do list program.
+                data = json.load(file)
+                for fileusernames in data["users"]: 
+                    iterate += 1
+                    if username == fileusernames:
+                        successuser += 1
+                        if password == data["passwords"][iterate-1]:
+                            self.loginText.config(text="Successfully logged in!", fg="green")
+                            self.loginText.place(x=185, y=300)
+                            self.loginButton.config(text="Continue", command=lambda:self.ShowFrame("ToDoListFrame"))
+                            successpass += 1 
+                    elif successuser == 0:
+                        self.loginText.config(text="User not found.", fg="red")
         except FileNotFoundError:
-            with open("RegisteredUsers.txt", "w") as file:
-                file.write("John Doe")
+            with open("RegisteredUsers.json", "w") as file:
+                defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": [["1task1", "1task2"], ["usertask1", "usertask2"], ["3task1", "3task2"]]}
+                json.dump(defaultData, file)
 
     def RegisFrame(self):                 # the login frame which will be shown when they exit the menu frame after pressing the login button.
         regisFrame = Frame(self.container)
@@ -99,21 +107,41 @@ class ToDoList():
 
         regisButton = Button(regisFrame, text="Register", width=10, command=lambda:self.Register(regisEntryUser.get(), regisEntryPassword.get()))  # when the register button has been clicked it will run the register function however the register function will need the username and password as parameters so i will use .get() to obtain it from the entry boxes.
         regisButton.place(x=206, y=320)
+
+        self.regisText = Label(regisFrame, text="")
+        self.regisText.place(x=204, y=300)
         return regisFrame
     
     def Register(self, username, password):         # register system
+        userexists = 0
         try:
-            with open("RegisteredUsers.txt", "r") as fileread:  # reading mode in order to check its content
-                for i in fileread:
-                    fileuser, filepassword = i.strip().split(" ")   # separating the username and the password
-                    if username == fileuser and password == filepassword:
-                        print("account found")                  # if the username and password have already been registered to the txt file, it will tell them that the account has been found and it will not be adding the username and password to prevent duplicates
-                with open("RegisteredUsers.txt", "a") as fileadd:
-                    fileadd.write("\n" + username + " " + password) # if it is confirmed that the username and password are not yet added it will then add it to the txt file 
+            with open("RegisteredUsers.json", "r") as fileread:  # reading mode in order to check its content
+                data = json.load(fileread)
+                for i in data["users"]:
+                    if i == username:
+                        self.regisText.config(text="Username taken.", fg="red")
+                        self.regisText.place(x=202, y=300)                  # if the username and password have already been registered to the json file, it will tell them that the account has been found and it will not be adding the username and password to prevent duplicates
+                        userexists = 1
+                if userexists == 0:
+                    with open("RegisteredUsers.json", "w") as filewrite:
+                        data["users"].append(username)
+                        data["passwords"].append(password)
+                        data["tasks"].append(["task1", "task2"])
+                        json.dump(data, filewrite)              # if it is confirmed that the username and password are not yet added it will then add it to the json file 
+                        self.regisText.config(text="User registered.", fg="green")
+                        self.regisText.place(x=203, y=300)
         except FileNotFoundError:
-            with open("RegisteredUsers.txt", "w") as file:
-                file.write("John Doe")
+            with open("RegisteredUsers.json", "r") as fileread:
+                data = json.load(fileread)
+                with open("RegisteredUsers.json", "w") as file:
+                    defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": [["1task1", "1task2"], ["usertask1", "usertask2"], ["3task1", "3task2"]]}
+                    json.dump(defaultData, file)
 
+    def todolistFrame(self):
+        todoFrame = Frame(self.container)
+        todoFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
+        
+        return todoFrame
 # main program
 root = Tk()
 app = ToDoList(root)
