@@ -70,12 +70,13 @@ class ToDoList():
                 for fileusernames in data["users"]: 
                     iterate += 1
                     if username == fileusernames:
+                        self.username = username
                         successuser += 1
                         if password == data["passwords"][iterate-1]:
                             self.loginText.config(text="Successfully logged in!", fg="green")
                             self.loginText.place(x=185, y=300)
                             self.loginButton.config(text="Continue", command=lambda:self.ShowFrame("ToDoListFrame"))
-                            successpass += 1 
+                            self.todoUser.config(text=f"Welcome, {username}.", font=("Corbel", 30, "bold"))
                     elif successuser == 0:
                         self.loginText.config(text="User not found.", fg="red")
         except FileNotFoundError:
@@ -141,7 +142,34 @@ class ToDoList():
         todoFrame = Frame(self.container)
         todoFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
         
+
+        self.todoUser = Label(todoFrame, text="AAA")
+        self.todoUser.place(x=30, y=10)
+
+        todoLabel = Label(todoFrame, text="To do list", font=("Corbel", 15, "bold"))
+        todoLabel.place(x=115, y=70)
+
+        tasksScrollbar = Scrollbar(todoFrame)
+        tasksScrollbar.pack(side= RIGHT, fill=Y)
+
+        self.tasksShow = Listbox(todoFrame, yscrollcommand=tasksScrollbar.set, height=27, width=50)
+        self.tasksShow.place(x=15, y=100)
+
+        tasksAdd = Entry(todoFrame)
+        tasksAdd.place(x=20, y=550, height=15)
+
+        tasksAddButton = Button(todoFrame, text="Add task",command=lambda:self.AddTasks(tasksAdd.get()))
+        tasksAddButton.place(x=160, y=550, height= 17)
+
+        # newactivityButton = Button(todoFrame, text="New task.")
+        # newactivityButton.place(x=50, y=550)
+
         return todoFrame
+    
+    def AddTasks(self, addedTask):
+        self.tasksShow.insert(END, addedTask)
+
+        
 # main program
 root = Tk()
 app = ToDoList(root)
