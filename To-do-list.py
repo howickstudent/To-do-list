@@ -1,5 +1,7 @@
 from tkinter import *
 import json
+from datetime import *
+import calendar
 
 class ToDoList():
     def __init__(self, root): # the main thing that this function does is initializing and creating the container for the other frames.
@@ -23,7 +25,7 @@ class ToDoList():
         menuFrame = Frame(self.container)
         menuFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
 
-        menuLabel = Label(menuFrame, text="Menu", font=("Corbel", 50, "bold"))
+        menuLabel = Label(menuFrame, text="Menu", font=("Corbel", 50))
         menuLabel.place(x= 170, y=150)
 
         menuButton = Button(menuFrame, text="Login", command=lambda:self.ShowFrame("LoginFrame"), padx=20, pady=6)   # once the login button has been pressed it will call the login frame which was stored in the dictionary.
@@ -155,21 +157,58 @@ class ToDoList():
         self.tasksShow = Listbox(todoFrame, yscrollcommand=tasksScrollbar.set, height=27, width=50)
         self.tasksShow.place(x=15, y=100)
 
-        tasksAdd = Entry(todoFrame)
-        tasksAdd.place(x=20, y=550, height=15)
-
-        tasksAddButton = Button(todoFrame, text="Add task",command=lambda:self.AddTasks(tasksAdd.get()))
-        tasksAddButton.place(x=160, y=550, height= 17)
-
-        # newactivityButton = Button(todoFrame, text="New task.")
-        # newactivityButton.place(x=50, y=550)
+        newactivityButton = Button(todoFrame, text="New task.", command=lambda:self.AddTasksFrame())
+        newactivityButton.place(x=300, y=550)
 
         return todoFrame
     
     def AddTasks(self, addedTask):
         self.tasksShow.insert(END, addedTask)
+    
+    def AddTasksFrame(self):
+        self.taskFrame = Frame(self.container, borderwidth=2, relief="ridge")
+        self.taskFrame.place(x=40, y=40, width=420, height=520)
 
+        taskaddLabel = Label(self.taskFrame, text="New Task", font=("Corbel", 15))
+        taskaddLabel.place(x=0, y=0)
+
+        self.taskpriorityLevel = IntVar()
+
+        self.level1Priority = Radiobutton(self.taskFrame, text="1", value=1, variable=self.taskpriorityLevel)
         
+        self.level1Priority.place(x=5,y=250)
+
+        self.level2Priority = Radiobutton(self.taskFrame, text="2", value=2, variable=self.taskpriorityLevel)
+        self.level2Priority.place(x=35, y=250)
+
+        self.level3Priority = Radiobutton(self.taskFrame, text="3", value=3, variable=self.taskpriorityLevel)
+        self.level3Priority.place(x=65, y=250)
+
+        self.level4Priority = Radiobutton(self.taskFrame, text="4", value=4, variable=self.taskpriorityLevel)
+        self.level4Priority.place(x=95, y=250)
+
+        self.level5Priority = Radiobutton(self.taskFrame, text="5", value=5, variable=self.taskpriorityLevel)
+        self.level5Priority.place(x=125, y=250)
+
+        entryTask = Entry(self.taskFrame)
+        entryTask.place(x=20, y=150, height=15)
+
+        tasksAddButton = Button(self.taskFrame, text="Add task",command=lambda:self.AddTasks(entryTask.get()))
+        tasksAddButton.place(x=160, y=150, height= 17)
+
+        taskframeClose = Button(self.taskFrame, text="Close", fg="red", command=lambda:self.AddTasksFrameclose())
+        taskframeClose.pack()
+
+        entryDate = Entry(self.taskFrame)
+        entryDate.place(x=20, y=200, height=15)
+
+        testButton = Button(self.taskFrame, text="Enter date")
+        testButton.place(x=160, y=200)
+
+    def AddTasksFrameclose(self):
+        self.taskFrame.place_forget()
+
+
 # main program
 root = Tk()
 app = ToDoList(root)
