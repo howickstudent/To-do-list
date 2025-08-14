@@ -38,7 +38,7 @@ class ToDoList():
         loginFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
         
         loginLabel = Label(loginFrame, text="Login", font=("Corbel", 50, "bold"), wraplength=200)
-        loginLabel.place(x= 160, y=130)
+        loginLabel.place(x= 160, y=130)                                                 
 
         loginLabelUser = Label(loginFrame, text= "User:", font=("Corbel", 13))
         loginLabelUser.place(x=133, y=236)
@@ -50,15 +50,15 @@ class ToDoList():
         loginLabelPassword.place(x=98, y=275)
 
         loginEntryPassword = Entry(loginFrame)
-        loginEntryPassword.place(x=185, y=280)
+        loginEntryPassword.place(x=185, y=280)                                        
 
         self.loginButton = Button(loginFrame, text="Login", width=10, command=lambda:self.LoginVerif(loginEntryUser.get(), loginEntryPassword.get()))
-        self.loginButton.place(x=206, y=320)
+        self.loginButton.place(x=206, y=320)                                                                                                            # This button will serve as a login button and it works by running the function LoginVerif(variable1(username), variable2(password))
 
         regismenuButton = Button(loginFrame, text="Register Instead", width=12, command=lambda:self.ShowFrame("RegisterFrame"))
-        regismenuButton.place(x=200, y=500)
+        regismenuButton.place(x=200, y=500)                                                                                     # If the user does not yet have an account they will have a register button which will lead them to the register frame where they can create a new account
 
-        self.loginText = Label(loginFrame, text="")
+        self.loginText = Label(loginFrame, text="")                # This will be a confirmation text which will be utilized by the LoginVerif() function where it will tell the user if the user got the password wrong, if the account they are trying to access does not exist and if they have logged in successfully.
         self.loginText.place(x=204, y=300)
         return loginFrame
     
@@ -69,7 +69,7 @@ class ToDoList():
         try:
             with open("RegisteredUsers.json", "r") as file:  # it will read the file and once it finds the username and corresponding password, it will successfully log them in and change the login button to continure where it will lead them to the to do list program.
                 data = json.load(file)
-                for fileusernames in data["users"]: 
+                for fileusernames in data["users"]:             # first have to read the file and load the data. Then, it check if the username and password are correct if so, the user will be authorized otherwise, it will tell the user the password is incorrect or the account does not exist
                     iterate += 1
                     if username == fileusernames:
                         self.username = username
@@ -81,7 +81,7 @@ class ToDoList():
                             self.todoUser.config(text=f"Welcome, {username}.", font=("Corbel", 30, "bold"))
                     elif successuser == 0:
                         self.loginText.config(text="User not found.", fg="red")
-        except FileNotFoundError:
+        except FileNotFoundError:                                                       # if the file does not exist, it will create the file and insert test users, their passwords, and the tasks
             with open("RegisteredUsers.json", "w") as file:
                 defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": [["1task1", "1task2"], ["usertask1", "usertask2"], ["3task1", "3task2"]]}
                 json.dump(defaultData, file)
@@ -119,7 +119,7 @@ class ToDoList():
         userexists = 0
         try:
             with open("RegisteredUsers.json", "r") as fileread:  # reading mode in order to check its content
-                data = json.load(fileread)
+                data = json.load(fileread)                      
                 for i in data["users"]:
                     if i == username:
                         self.regisText.config(text="Username taken.", fg="red")
@@ -133,14 +133,14 @@ class ToDoList():
                         json.dump(data, filewrite)              # if it is confirmed that the username and password are not yet added it will then add it to the json file 
                         self.regisText.config(text="User registered.", fg="green")
                         self.regisText.place(x=203, y=300)
-        except FileNotFoundError:
+        except FileNotFoundError:                                   # if the file does not yet exist, it will create it with test usernames, test passwords, and test tasks
             with open("RegisteredUsers.json", "r") as fileread:
                 data = json.load(fileread)
                 with open("RegisteredUsers.json", "w") as file:
                     defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": [["1task1", "1task2"], ["usertask1", "usertask2"], ["3task1", "3task2"]]}
                     json.dump(defaultData, file)
 
-    def todolistFrame(self):
+    def todolistFrame(self):                        # this is the main frame which will display the tasks, their due dates and their priority levels.
         todoFrame = Frame(self.container)
         todoFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
         
@@ -151,21 +151,27 @@ class ToDoList():
         todoLabel = Label(todoFrame, text="To do list", font=("Corbel", 15, "bold"))
         todoLabel.place(x=115, y=70)
 
-        tasksScrollbar = Scrollbar(todoFrame)
+        tasksScrollbar = Scrollbar(todoFrame, orient="vertical", command=taskcanvasFrame1.yview)
         tasksScrollbar.pack(side= RIGHT, fill=Y)
 
-        self.tasksShow = Listbox(todoFrame, yscrollcommand=tasksScrollbar.set, height=27, width=50)
-        self.tasksShow.place(x=15, y=100)
+        # self.tasksShow = Listbox(todoFrame, yscrollcommand=tasksScrollbar.set, height=27, width=50)
+        # self.tasksShow.place(x=15, y=100)
+
+        taskCanvas = Canvas(todoFrame, height=400, width=280, yscrollcommand=tasksScrollbar.set, background="red")
+        taskCanvas.place(x=15, y=100)
+
+        taskcanvasFrame1= Frame(taskCanvas, background="red")
+        taskcanvasFrame1.grid(row=0, column=0)
 
         newactivityButton = Button(todoFrame, text="New task.", command=lambda:self.AddTasksFrame())
         newactivityButton.place(x=300, y=550)
 
         return todoFrame
     
-    def AddTasks(self, addedTask):
+    def AddTasks(self, addedTask):              # this function is used when adding tasks
         self.tasksShow.insert(END, addedTask)
     
-    def AddTasksFrame(self):
+    def AddTasksFrame(self):        # this will be the mini frame when the user is adding new tasks, it will contain an entry box where the user can enter the task, it will also have an entry box where the user will enter the due date and finally it will have radio buttons where the user will enter the priority level
         self.taskFrame = Frame(self.container, borderwidth=2, relief="ridge")
         self.taskFrame.place(x=40, y=40, width=420, height=520)
 
@@ -205,7 +211,7 @@ class ToDoList():
         testButton = Button(self.taskFrame, text="Enter date")
         testButton.place(x=160, y=200)
 
-    def AddTasksFrameclose(self):
+    def AddTasksFrameclose(self):           # this function will be used when the user will close the mini frame.
         self.taskFrame.place_forget()
 
 
