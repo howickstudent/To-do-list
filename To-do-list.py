@@ -140,10 +140,9 @@ class ToDoList():
                     defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": [["1task1", "1task2"], ["usertask1", "usertask2"], ["3task1", "3task2"]]}
                     json.dump(defaultData, file)
 
-    def todolistFrame(self):                        # this is the main frame which will display the tasks, their due dates and their priority levels.
+    def todolistFrame(self):                        
         todoFrame = Frame(self.container)
         todoFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
-        
 
         self.todoUser = Label(todoFrame, text="AAA")
         self.todoUser.place(x=30, y=10)
@@ -151,25 +150,51 @@ class ToDoList():
         todoLabel = Label(todoFrame, text="To do list", font=("Corbel", 15, "bold"))
         todoLabel.place(x=115, y=70)
 
-        tasksScrollbar = Scrollbar(todoFrame, orient="vertical", command=taskcanvasFrame1.yview)
-        tasksScrollbar.pack(side= RIGHT, fill=Y)
+        self.taskCanvas = Canvas(todoFrame, height=400, width=280, background="white")
+        self.taskCanvas.place(x=15, y=100)
 
-        # self.tasksShow = Listbox(todoFrame, yscrollcommand=tasksScrollbar.set, height=27, width=50)
-        # self.tasksShow.place(x=15, y=100)
+        scrollbar = Scrollbar(todoFrame, orient="vertical", command=self.taskCanvas.yview)
+        scrollbar.place(x=295, y=100, height=400)
 
-        taskCanvas = Canvas(todoFrame, height=400, width=280, yscrollcommand=tasksScrollbar.set, background="red")
-        taskCanvas.place(x=15, y=100)
+        self.taskCanvas.configure(yscrollcommand=scrollbar.set)
 
-        taskcanvasFrame1= Frame(taskCanvas, background="red")
-        taskcanvasFrame1.grid(row=0, column=0)
+        self.taskListFrame = Frame(self.taskCanvas, background="white")
+        self.taskCanvas.create_window((0, 0), window=self.taskListFrame, anchor="nw")
 
-        newactivityButton = Button(todoFrame, text="New task.", command=lambda:self.AddTasksFrame())
+        self.taskListFrame.bind(
+            "<Configure>", 
+            lambda e: self.taskCanvas.configure(scrollregion=self.taskCanvas.bbox("all"))
+        )
+
+        self.taskCanvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        newactivityButton = Button(todoFrame, text="New task.", command=self.AddTasksFrame)
         newactivityButton.place(x=300, y=550)
 
         return todoFrame
-    
-    def AddTasks(self, addedTask):              # this function is used when adding tasks
-        self.tasksShow.insert(END, addedTask)
+
+    def _on_mousewheel(self, event):
+        self.taskCanvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    def AddTasks(self, addedTask):              # adds tasks as checkboxes inside taskListFrame
+        if not addedTask.strip():
+            return  
+        
+        task_item = Frame(self.taskListFrame, bg="white")
+
+        var = IntVar()
+
+        chk = Checkbutton(
+            task_item, text=addedTask, variable=var, 
+            command=lambda:self.RemoveTask(task_item), bg="white", anchor="w"
+        )
+        chk.pack(side=LEFT, anchor="w")
+
+        task_item.pack(fill="x", pady=2, anchor="w")
+
+    def RemoveTask(self, task_item):           # removes the task frame
+        task_item.destroy()
+
     
     def AddTasksFrame(self):        # this will be the mini frame when the user is adding new tasks, it will contain an entry box where the user can enter the task, it will also have an entry box where the user will enter the due date and finally it will have radio buttons where the user will enter the priority level
         self.taskFrame = Frame(self.container, borderwidth=2, relief="ridge")
