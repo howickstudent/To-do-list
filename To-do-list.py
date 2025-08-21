@@ -22,13 +22,13 @@ class ToDoList():
         frame.tkraise()
 
     def MenuFrame(self):                  # this is the menu frame which will be before the login frame.
-        menuFrame = Frame(self.container)
+        menuFrame = Frame(self.container, background="#fafafa")
         menuFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
 
-        menuLabel = Label(menuFrame, text="Menu", font=("Corbel", 50))
+        menuLabel = Label(menuFrame, text="Menu", font=("Corbel", 50), background="#fafafa")
         menuLabel.place(x= 170, y=150)
 
-        menuButton = Button(menuFrame, text="Login", command=lambda:self.ShowFrame("LoginFrame"), padx=20, pady=6)   # once the login button has been pressed it will call the login frame which was stored in the dictionary.
+        menuButton = Button(menuFrame, text="Login", command=lambda:self.ShowFrame("LoginFrame"), padx=20, pady=6, background="#e4e5f1")   # once the login button has been pressed it will call the login frame which was stored in the dictionary.
         menuButton.place(x=220,y=240)                       
 
         return menuFrame                  # returning the frame so it will be stored in the dictionary.
@@ -166,31 +166,24 @@ class ToDoList():
             lambda e: self.taskCanvas.configure(scrollregion=self.taskCanvas.bbox("all"))
         )
 
-        self.taskCanvas.bind_all("<MouseWheel>", self._on_mousewheel)
-
         newactivityButton = Button(todoFrame, text="New task.", command=self.AddTasksFrame)
         newactivityButton.place(x=300, y=550)
 
         return todoFrame
 
-    def _on_mousewheel(self, event):
-        self.taskCanvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    def AddTasks(self, addedTask, dueDate, priorityLevel):              # adds tasks as checkboxes inside taskListFrame
+        taskItem = Frame(self.taskListFrame, bg="white")
 
-    def AddTasks(self, addedTask):              # adds tasks as checkboxes inside taskListFrame
-        if not addedTask.strip():
-            return  
-        
-        task_item = Frame(self.taskListFrame, bg="white")
-
-        var = IntVar()
-
-        chk = Checkbutton(
-            task_item, text=addedTask, variable=var, 
-            command=lambda:self.RemoveTask(task_item), bg="white", anchor="w"
+        checkBox = Checkbutton(
+            taskItem, text=addedTask,
+            command=lambda:self.RemoveTask(taskItem), bg="white", anchor="w"
         )
-        chk.pack(side=LEFT, anchor="w")
+        checkBox.pack(side=LEFT, anchor="w")
 
-        task_item.pack(fill="x", pady=2, anchor="w")
+        dueDateDisplay = Label(taskItem, text=f"Due: {dueDate}", anchor="w")
+        dueDateDisplay.pack(side=RIGHT, anchor="w")
+
+        taskItem.pack(fill="x", pady=2, anchor="w")
 
     def RemoveTask(self, task_item):           # removes the task frame
         task_item.destroy()
@@ -224,7 +217,7 @@ class ToDoList():
         entryTask = Entry(self.taskFrame)
         entryTask.place(x=20, y=150, height=15)
 
-        tasksAddButton = Button(self.taskFrame, text="Add task",command=lambda:self.AddTasks(entryTask.get()))
+        tasksAddButton = Button(self.taskFrame, text="Add task",command=lambda:self.AddTasks(entryTask.get(),entryDate.get(), self.taskpriorityLevel.get()))
         tasksAddButton.place(x=160, y=150, height= 17)
 
         taskframeClose = Button(self.taskFrame, text="Close", fg="red", command=lambda:self.AddTasksFrameclose())
@@ -232,9 +225,6 @@ class ToDoList():
 
         entryDate = Entry(self.taskFrame)
         entryDate.place(x=20, y=200, height=15)
-
-        testButton = Button(self.taskFrame, text="Enter date")
-        testButton.place(x=160, y=200)
 
     def AddTasksFrameclose(self):           # this function will be used when the user will close the mini frame.
         self.taskFrame.place_forget()
