@@ -147,7 +147,7 @@ class ToDoList():
         todoFrame = Frame(self.container)
         todoFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
 
-        self.todoUser = Label(todoFrame, text="AAA")
+        self.todoUser = Label(todoFrame, text="")
         self.todoUser.place(x=30, y=10)
 
         todoLabel = Label(todoFrame, text="To do list", font=("Corbel", 15, "bold"))
@@ -200,7 +200,7 @@ class ToDoList():
         self.taskFrame.place(x=40, y=40, width=420, height=520)
 
         taskaddLabel = Label(self.taskFrame, text="New Task", font=("Corbel", 15))
-        taskaddLabel.place(x=0, y=0)
+        taskaddLabel.place(x=165, y=90)
 
         self.taskpriorityLevel = IntVar()
 
@@ -240,6 +240,9 @@ class ToDoList():
 
         entryDate = Entry(self.taskFrame)
         entryDate.place(x=150, y=200, height=15)
+
+        addtaskDescription = Label(self.taskFrame, text="To add a new task, enter the task in the 'Task:' entry box. When you're done, enter when you want it to be done in the 'Deadline:' entry box. Then finally, select the priority level (How urgent the task is.) and click add task.", width=50, wraplength=200)
+        addtaskDescription.place(x=35, y=330)
 
     def AddTasksFrameclose(self):           # this function will be used when the user will close the mini frame.
         self.taskFrame.place_forget()
