@@ -24,6 +24,9 @@ class ToDoList():
     def MenuFrame(self):                  # this is the menu frame which will be before the login frame.
         menuFrame = Frame(self.container, background="#fafafa")
         menuFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
+        
+        adminButton = Button(menuFrame, text="Continue", command=lambda:self.ShowFrame("ToDoListFrame"))
+        adminButton.pack()
 
         menuLabel = Label(menuFrame, text="Menu", font=("Corbel", 50), background="#fafafa")
         menuLabel.place(x= 170, y=150)
@@ -180,6 +183,9 @@ class ToDoList():
         )
         checkBox.pack(side=LEFT, anchor="w")
 
+        priorityLevelDisplay = Label(taskItem, text=f"Priority: {priorityLevel}", anchor="w")
+        priorityLevelDisplay.pack(side=RIGHT, anchor="w")
+
         dueDateDisplay = Label(taskItem, text=f"Due: {dueDate}", anchor="w")
         dueDateDisplay.pack(side=RIGHT, anchor="w")
 
@@ -198,33 +204,42 @@ class ToDoList():
 
         self.taskpriorityLevel = IntVar()
 
+        prioritylevelLabel = Label(self.taskFrame, text="Priority Level", font=("Corbel", 10))
+        prioritylevelLabel.place(x=170, y=225)
+
         self.level1Priority = Radiobutton(self.taskFrame, text="1", value=1, variable=self.taskpriorityLevel)
         
-        self.level1Priority.place(x=5,y=250)
+        self.level1Priority.place(x=135,y=250)
 
         self.level2Priority = Radiobutton(self.taskFrame, text="2", value=2, variable=self.taskpriorityLevel)
-        self.level2Priority.place(x=35, y=250)
+        self.level2Priority.place(x=165, y=250)
 
         self.level3Priority = Radiobutton(self.taskFrame, text="3", value=3, variable=self.taskpriorityLevel)
-        self.level3Priority.place(x=65, y=250)
+        self.level3Priority.place(x=195, y=250)
 
         self.level4Priority = Radiobutton(self.taskFrame, text="4", value=4, variable=self.taskpriorityLevel)
-        self.level4Priority.place(x=95, y=250)
+        self.level4Priority.place(x=225, y=250)
 
         self.level5Priority = Radiobutton(self.taskFrame, text="5", value=5, variable=self.taskpriorityLevel)
-        self.level5Priority.place(x=125, y=250)
+        self.level5Priority.place(x=255, y=250)
+
+        entryTaskLabel = Label(self.taskFrame, text="Task:", font=("Corbel", 10))
+        entryTaskLabel.place(x=115, y=146)
 
         entryTask = Entry(self.taskFrame)
-        entryTask.place(x=20, y=150, height=15)
+        entryTask.place(x=150, y=150, height=15)
 
         tasksAddButton = Button(self.taskFrame, text="Add task",command=lambda:self.AddTasks(entryTask.get(),entryDate.get(), self.taskpriorityLevel.get()))
-        tasksAddButton.place(x=160, y=150, height= 17)
+        tasksAddButton.place(x=183, y=290, height= 17)
 
         taskframeClose = Button(self.taskFrame, text="Close", fg="red", command=lambda:self.AddTasksFrameclose())
         taskframeClose.pack()
 
+        entryDateLabel = Label(self.taskFrame, text="Deadline:", font=("Corbel", 10))
+        entryDateLabel.place(x=90, y=197)
+
         entryDate = Entry(self.taskFrame)
-        entryDate.place(x=20, y=200, height=15)
+        entryDate.place(x=150, y=200, height=15)
 
     def AddTasksFrameclose(self):           # this function will be used when the user will close the mini frame.
         self.taskFrame.place_forget()
