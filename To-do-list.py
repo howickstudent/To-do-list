@@ -6,6 +6,8 @@ import calendar
 class ToDoList():
     def __init__(self, root): # the main thing that this function does is initializing and creating the container for the other frames.
         self.root = root
+        self.checkUser = FALSE
+        self.iterate = 0
 
         self.container = Frame(self.root) # the container
         self.container.grid(row=0, column=0, sticky="nsew")
@@ -68,16 +70,17 @@ class ToDoList():
     def LoginVerif(self, username, password):       # login verification
         successuser = 0
         successpass = 0
-        iterate = 0
         try:
             with open("RegisteredUsers.json", "r") as file:  # it will read the file and once it finds the username and corresponding password, it will successfully log them in and change the login button to continure where it will lead them to the to do list program.
                 data = json.load(file)
                 for fileusernames in data["users"]:             # first have to read the file and load the data. Then, it check if the username and password are correct if so, the user will be authorized otherwise, it will tell the user the password is incorrect or the account does not exist
-                    iterate += 1
+                    self.iterate += 1
                     if username == fileusernames:
                         self.username = username
                         successuser += 1
-                        if password == data["passwords"][iterate-1]:
+                        if password == data["passwords"][self.iterate-1]:
+                            self.checkUser = TRUE 
+                            self.loadTasks()
                             self.loginText.config(text="Successfully logged in!", fg="green")
                             self.loginText.place(x=185, y=300)
                             self.loginButton.config(text="Continue", command=lambda:self.ShowFrame("ToDoListFrame"))
@@ -86,7 +89,10 @@ class ToDoList():
                         self.loginText.config(text="User not found.", fg="red")
         except FileNotFoundError:                                                       # if the file does not exist, it will create the file and insert test users, their passwords, and the tasks
             with open("RegisteredUsers.json", "w") as file:
-                defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": [["1task1", "1task2"], ["usertask1", "usertask2"], ["3task1", "3task2"]]}
+                defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": 
+                               [[["1task1", "2025/09/1", 4], ["1task2", "2025/09/1", 2]], 
+                                [["usertask1", "2025/09/01", 4], ["usertask2", "2025/09/01", 2]], 
+                                [["3task1", "2025/09/01", 4], ["3task2", "2025/09/1", 2]]]}
                 json.dump(defaultData, file)
 
     def RegisFrame(self):                 # the login frame which will be shown when they exit the menu frame after pressing the login button.
@@ -143,7 +149,29 @@ class ToDoList():
                     defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": [["1task1", "1task2"], ["usertask1", "usertask2"], ["3task1", "3task2"]]}
                     json.dump(defaultData, file)
 
-    def todolistFrame(self):                        
+    def loadTasks(self):
+        with open("Registeredusers.json", "r") as file:
+            data = json.load(file)
+            for i in data["tasks"][self.iterate-1]:
+                task, dueDate, priorityLevel = i
+                taskItem = Frame(self.taskListFrame, bg="white")
+
+                checkBox = Checkbutton(
+                    taskItem, text=task,
+                    command=lambda:self.RemoveTask(taskItem), bg="white", anchor="w"
+                )
+                checkBox.pack(side=LEFT, anchor="w")
+
+                priorityLevelDisplay = Label(taskItem, text=f"Priority: {priorityLevel}", anchor="w")
+                priorityLevelDisplay.pack(side=RIGHT, anchor="w")
+
+                dueDateDisplay = Label(taskItem, text=f"Due: {dueDate}", anchor="w")
+                dueDateDisplay.pack(side=RIGHT, anchor="w")
+
+                taskItem.pack(fill="x", pady=2, anchor="w")
+
+
+    def todolistFrame(self):               
         todoFrame = Frame(self.container)
         todoFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
 
@@ -193,6 +221,11 @@ class ToDoList():
 
     def RemoveTask(self, task_item):           # removes the task frame
         task_item.destroy()
+        # with open("Registeredusers.json", "r") as file:
+        #     data = json.load(file)
+
+        #     with open("Registeredusers.json", "w") as file:
+
 
     
     def AddTasksFrame(self):        # this will be the mini frame when the user is adding new tasks, it will contain an entry box where the user can enter the task, it will also have an entry box where the user will enter the due date and finally it will have radio buttons where the user will enter the priority level
