@@ -48,16 +48,16 @@ class ToDoList():
         loginLabelUser = Label(loginFrame, text= "User:", font=("Corbel", 13))
         loginLabelUser.place(x=133, y=236)
 
-        loginEntryUser = Entry(loginFrame)
-        loginEntryUser.place(x= 185, y=240)
+        self.loginEntryUser = Entry(loginFrame)
+        self.loginEntryUser.place(x= 185, y=240)
 
         loginLabelPassword = Label(loginFrame, text= "Password:", font=("Corbel", 13))
         loginLabelPassword.place(x=98, y=275)
 
-        loginEntryPassword = Entry(loginFrame)
-        loginEntryPassword.place(x=185, y=280)                                        
+        self.loginEntryPassword = Entry(loginFrame)
+        self.loginEntryPassword.place(x=185, y=280)                                        
 
-        self.loginButton = Button(loginFrame, text="Login", width=10, command=lambda:self.LoginVerif(loginEntryUser.get(), loginEntryPassword.get()))
+        self.loginButton = Button(loginFrame, text="Login", width=10, command=lambda:self.LoginVerif(self.loginEntryUser.get(), self.loginEntryPassword.get()))
         self.loginButton.place(x=206, y=320)                                                                                                            # This button will serve as a login button and it works by running the function LoginVerif(variable1(username), variable2(password))
 
         regismenuButton = Button(loginFrame, text="Register Instead", width=12, command=lambda:self.ShowFrame("RegisterFrame"))
@@ -70,6 +70,8 @@ class ToDoList():
     def LoginVerif(self, username, password):       # login verification
         successuser = 0
         successpass = 0
+        if self.iterate != 0:
+            self.iterate = 0
         try:
             with open("RegisteredUsers.json", "r") as file:  # it will read the file and once it finds the username and corresponding password, it will successfully log them in and change the login button to continure where it will lead them to the to do list program.
                 data = json.load(file)
@@ -105,19 +107,19 @@ class ToDoList():
         regisLabelUser = Label(regisFrame, text= "User:", font=("Corbel", 13))
         regisLabelUser.place(x=133, y=236)
 
-        regisEntryUser = Entry(regisFrame)
-        regisEntryUser.place(x= 185, y=240)
+        self.regisEntryUser = Entry(regisFrame)
+        self.regisEntryUser.place(x= 185, y=240)
 
         regisLabelPassword = Label(regisFrame, text= "Password:", font=("Corbel", 13))
         regisLabelPassword.place(x=98, y=275)
 
-        regisEntryPassword = Entry(regisFrame)
-        regisEntryPassword.place(x=185, y=280)
+        self.regisEntryPassword = Entry(regisFrame)
+        self.regisEntryPassword.place(x=185, y=280)
 
         backButton = Button(regisFrame, text="Back", command=lambda:self.ShowFrame("LoginFrame")) # if the back button is pressed it will call the showframe function and show the login frame.
         backButton.place(x=300, y=320)
 
-        regisButton = Button(regisFrame, text="Register", width=10, command=lambda:self.Register(regisEntryUser.get(), regisEntryPassword.get()))  # when the register button has been clicked it will run the register function however the register function will need the username and password as parameters so i will use .get() to obtain it from the entry boxes.
+        regisButton = Button(regisFrame, text="Register", width=10, command=lambda:self.Register(self.regisEntryUser.get(), self.regisEntryPassword.get()))  # when the register button has been clicked it will run the register function however the register function will need the username and password as parameters so i will use .get() to obtain it from the entry boxes.
         regisButton.place(x=206, y=320)
 
         self.regisText = Label(regisFrame, text="")
@@ -170,6 +172,11 @@ class ToDoList():
 
                 taskItem.pack(fill="x", pady=2, anchor="w")
 
+    # def resetLogout(self):
+    #     lambda:self.ShowFrame("MenuFrame")
+    #     self.loginButton.config(text="Login", width=10, command=lambda:self.LoginVerif(self.loginEntryUser.get(), self.loginEntryPassword.get()))
+    #     print(1)
+
 
     def todolistFrame(self):               
         todoFrame = Frame(self.container)
@@ -178,14 +185,14 @@ class ToDoList():
         self.todoUser = Label(todoFrame, text="")
         self.todoUser.place(x=30, y=10)
 
-        todoLabel = Label(todoFrame, text="To do list", font=("Corbel", 15, "bold"))
-        todoLabel.place(x=115, y=70)
+        todoLabel = Label(todoFrame, text="To do list", font=("Corbel", 15))
+        todoLabel.place(x=200, y=70)
 
-        self.taskCanvas = Canvas(todoFrame, height=400, width=280, background="white")
+        self.taskCanvas = Canvas(todoFrame, height=400, width=460, background="white")
         self.taskCanvas.place(x=15, y=100)
 
         scrollbar = Scrollbar(todoFrame, orient="vertical", command=self.taskCanvas.yview)
-        scrollbar.place(x=295, y=100, height=400)
+        scrollbar.place(x=460, y=100, height=400)
 
         self.taskCanvas.configure(yscrollcommand=scrollbar.set)
 
@@ -197,12 +204,24 @@ class ToDoList():
             lambda e: self.taskCanvas.configure(scrollregion=self.taskCanvas.bbox("all"))
         )
 
-        newactivityButton = Button(todoFrame, text="New task.", command=self.AddTasksFrame)
-        newactivityButton.place(x=300, y=550)
+        newactivityButton = Button(todoFrame, text="New Task", command=self.AddTasksFrame, height=2, font="Corbel")
+        newactivityButton.place(x=170, y=520)
+
+        logoutButton = Button(todoFrame, text="Logout", command=lambda:[self.ShowFrame("MenuFrame"), self.loginButton.config(text="Login", width=10, command=lambda:self.LoginVerif(self.loginEntryUser.get(), self.loginEntryPassword.get())), self.loginText.config(text=""), self.loginEntryPassword.delete(0, END), self.loginEntryUser.delete(0, END)], height=2, fg="red", font="Corbel")
+        logoutButton.place(x=270, y=520)
 
         return todoFrame
 
     def AddTasks(self, addedTask, dueDate, priorityLevel):              # adds tasks as checkboxes inside taskListFrame
+    
+        with open("Registeredusers.json", "r") as fileread:
+            data = json.load(fileread)
+            print(self.iterate-1)
+            taskpackAdd = [addedTask, dueDate, priorityLevel]
+            print(data["tasks"][self.iterate-1])
+            with open("Registeredusers.json", "w") as filewrite:
+                json.dump(data, filewrite)
+    
         taskItem = Frame(self.taskListFrame, bg="white")
 
         checkBox = Checkbutton(
