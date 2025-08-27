@@ -1,3 +1,23 @@
+# v0.1
+# menu login and register frames
+# v0.2
+# improved looks of login and register Frames
+# v0.3
+# login and register system successfully NotImplemented
+# v0.4
+# first version of the main Menu
+# v0.5
+# used canvas instead of listbox to display tasks as widgets
+# v0.6
+# first version of display tasks and adding tasks
+# v0.7
+# can now successfully load in users tasks and save them
+# v1
+# boundary cases and invalid cases fixed
+# v2
+# aesthethic improvements
+
+
 from tkinter import *
 import json
 from datetime import *
@@ -76,7 +96,7 @@ class ToDoList():
                     self.iterate += 1
                     if username == fileusernames:
                         self.username = username
-                        successuser += 1
+                        successuser += 1                    # this has if statements to check if username and passwords are correct. will tell the user if the user does not exist or if the password is incorrect
                         if password == data["passwords"][self.iterate-1]:
                             successpass += 1
                             self.checkUser = TRUE 
@@ -154,21 +174,18 @@ class ToDoList():
                                 [["3task1", "2025/09/01", 4], ["3task2", "2025/09/1", 2]]]}
                 json.dump(defaultData, file)
 
-    def loadTasks(self):
+    def loadTasks(self):                         # this will load the tasks if the user has tasks saved
         with open("RegisteredUsers.json", "r") as file:
             data = json.load(file)
             for i in data["tasks"][self.iterate-1]:
                 task, dueDate, priorityLevel = i
                 self.displayTask(task, dueDate, priorityLevel)
 
-    def displayTask(self, task, dueDate, priorityLevel):
+    def displayTask(self, task, dueDate, priorityLevel):   # this function is used to turn the tasks into widgets. used by add frames and load tasks
         taskItem = Frame(self.taskListFrame, bg="white")
 
-        checkBox = Checkbutton(
-            taskItem, text=task,
-            command=lambda:self.RemoveTask(taskItem, [task, dueDate, priorityLevel]), bg="white", anchor="w"
-        )
-        checkBox.pack(side=LEFT, anchor="w")
+        checkBox = Checkbutton(taskItem, text=task,command=lambda:self.RemoveTask(taskItem, [task, dueDate, priorityLevel]), bg="white", anchor="w")
+        checkBox.pack(side=LEFT, anchor="w")                 
 
         priorityLevelDisplay = Label(taskItem, text=f"Priority: {priorityLevel}", anchor="w")
         priorityLevelDisplay.pack(side=RIGHT, anchor="w")
@@ -180,7 +197,7 @@ class ToDoList():
 
         self.frameList.append(taskItem)
 
-    def todolistFrame(self):               
+    def todolistFrame(self):               # this is the main frame for the to do list frame. will display the tasks
         todoFrame = Frame(self.container, background= "#d2d3db")
         todoFrame.grid(row=0, column=0, sticky="nsew", ipadx=300, ipady=600)
 
@@ -206,10 +223,10 @@ class ToDoList():
             lambda e: self.taskCanvas.configure(scrollregion=self.taskCanvas.bbox("all"))
         )
 
-        newactivityButton = Button(todoFrame, text="New Task", command=self.AddTasksFrame, height=2, font="Corbel", background="#fafafa")
+        newactivityButton = Button(todoFrame, text="New Task", command=self.AddTasksFrame, height=2, font="Corbel", background="#fafafa")         # if button is clicked, it will show the addtasksframe where the user can add new tasks
         newactivityButton.place(x=170, y=520)
 
-        logoutButton = Button(todoFrame, text="Logout", command=self.logoutFunction, height=2, fg="red", font="Corbel", background="#fafafa")
+        logoutButton = Button(todoFrame, text="Logout", command=self.logoutFunction, height=2, fg="red", font="Corbel", background="#fafafa")    # if this button is clicked, the logout function is called
         logoutButton.place(x=270, y=520)
 
         # cleartasksButton = Button(todoFrame, text="Clear tasks", command=self.clearTasks, height=2, fg="red", font="Corbel")
@@ -217,14 +234,14 @@ class ToDoList():
 
         return todoFrame
 
-    def logoutFunction(self):
+    def logoutFunction(self):       # function is used when the user logs out. it removes the previous login credentials, revert the continue button to login and sends the user back to main menu. it also removes the verification text and destroys all the widgets
         self.ShowFrame("MenuFrame")
         self.loginButton.config(text="Login", width=10, command=lambda:self.LoginVerif(self.loginEntryUser.get(), self.loginEntryPassword.get()))
         self.loginText.config(text="")
         self.loginEntryPassword.delete(0, END)
         self.loginEntryUser.delete(0, END)
         for i in self.frameList:
-            i.destroy()
+            i.destroy()                  
 
     # def clearTasks(self, listDelete):
     #     for i in self.frameList:
@@ -236,8 +253,8 @@ class ToDoList():
     #                     json.dump(data, file)
     #             i.destroy()
 
-    def AddTasks(self, addedTask, dueDate, priorityLevel):              # adds tasks as checkboxes inside taskListFrame
-        if len(addedTask)<=50 and len(addedTask) > 0:
+    def AddTasks(self, addedTask, dueDate, priorityLevel):              # adds tasks as checkboxes inside taskListFrame  # for the second version of this, it adds tasks as widgets instead of checkboxes
+        if len(addedTask)<=50 and len(addedTask) > 0:                        # now has boundaries and invalid. date and task entry boxes cannot be empty. task entry box also has a character limit of 50. priority level also cannot be 0
             if self.entryDate.get() == "":
                 self.addtaskframeLabel.config(text="Date entry box cannot be empty.", fg="black")
             else:
@@ -258,7 +275,7 @@ class ToDoList():
         elif len(addedTask) == 0:
             self.addtaskframeLabel.config(text="Task entry box cannot be empty.", fg="black")
 
-    def RemoveTask(self, taskItem, listDelete):           # removes the task frame
+    def RemoveTask(self, taskItem, listDelete):           # removes the task frame from the task list while also removing it from the json file and saving it
         taskItem.destroy()
         with open("RegisteredUsers.json", "r") as file:
             data = json.load(file)
@@ -307,10 +324,10 @@ class ToDoList():
         entryTask = Entry(self.taskFrame)
         entryTask.place(x=150, y=150, height=15)
 
-        tasksAddButton = Button(self.taskFrame, text="Add task",command=lambda:self.AddTasks(entryTask.get(),self.entryDate.get(), self.taskpriorityLevel.get()), background="#fafafa")
+        tasksAddButton = Button(self.taskFrame, text="Add task",command=lambda:self.AddTasks(entryTask.get(),self.entryDate.get(), self.taskpriorityLevel.get()), background="#fafafa")  # if this button is clicked, add tasks function is called where it will call the display function if the task is valid and add the tasks as widgets
         tasksAddButton.place(x=183, y=290, height= 17)
 
-        taskframeClose = Button(self.taskFrame, text="Close", fg="red", command=lambda:self.AddTasksFrameclose(), background="#fafafa")
+        taskframeClose = Button(self.taskFrame, text="Close", fg="red", command=lambda:self.AddTasksFrameclose(), background="#fafafa") # this closes the addtaskframe
         taskframeClose.pack()
 
         entryDateLabel = Label(self.taskFrame, text="Deadline:", font=("Corbel", 10), background= "#d2d3db")
