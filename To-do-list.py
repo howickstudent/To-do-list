@@ -144,34 +144,36 @@ class ToDoList():
                         json.dump(data, filewrite)              # if it is confirmed that the username and password are not yet added it will then add it to the json file 
                         self.regisText.config(text="User registered.", fg="green")
                         self.regisText.place(x=203, y=300)
-        except FileNotFoundError:                                   # if the file does not yet exist, it will create it with test usernames, test passwords, and test tasks
-            with open("RegisteredUsers.json", "r") as fileread:
-                data = json.load(fileread)
-                with open("RegisteredUsers.json", "w") as file:
-                    defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": [["1task1", "1task2"], ["usertask1", "usertask2"], ["3task1", "3task2"]]}
-                    json.dump(defaultData, file)
-
+        except FileNotFoundError:                                                       # if the file does not exist, it will create the file and insert test users, their passwords, and the tasks
+            with open("RegisteredUsers.json", "w") as file:
+                defaultData = {"users": ["1", "ken", "3"], "passwords": ["1", "password", "3"], "tasks": 
+                               [[["1task1", "2025/09/1", 4], ["1task2", "2025/09/1", 2]], 
+                                [["usertask1", "2025/09/01", 4], ["usertask2", "2025/09/01", 2]], 
+                                [["3task1", "2025/09/01", 4], ["3task2", "2025/09/1", 2]]]}
+                json.dump(defaultData, file)
     def loadTasks(self):
-        with open("Registeredusers.json", "r") as file:
+        with open("RegisteredUsers.json", "r") as file:
             data = json.load(file)
             for i in data["tasks"][self.iterate-1]:
                 task, dueDate, priorityLevel = i
-                taskItem = Frame(self.taskListFrame, bg="white")
+                self.displayTask(task, dueDate, priorityLevel)
 
-                checkBox = Checkbutton(
-                    taskItem, text=task,
-                    command=lambda:self.RemoveTask(taskItem), bg="white", anchor="w"
-                )
-                checkBox.pack(side=LEFT, anchor="w")
+    def displayTask(self, task, dueDate, priorityLevel):
+        taskItem = Frame(self.taskListFrame, bg="white")
 
-                priorityLevelDisplay = Label(taskItem, text=f"Priority: {priorityLevel}", anchor="w")
-                priorityLevelDisplay.pack(side=RIGHT, anchor="w")
+        checkBox = Checkbutton(
+            taskItem, text=task,
+            command=lambda:self.RemoveTask(taskItem), bg="white", anchor="w"
+        )
+        checkBox.pack(side=LEFT, anchor="w")
 
-                dueDateDisplay = Label(taskItem, text=f"Due: {dueDate}", anchor="w")
-                dueDateDisplay.pack(side=RIGHT, anchor="w")
+        priorityLevelDisplay = Label(taskItem, text=f"Priority: {priorityLevel}", anchor="w")
+        priorityLevelDisplay.pack(side=RIGHT, anchor="w")
 
-                taskItem.pack(fill="x", pady=2, anchor="w")
+        dueDateDisplay = Label(taskItem, text=f"Due: {dueDate}", anchor="w")
+        dueDateDisplay.pack(side=RIGHT, anchor="w")
 
+        taskItem.pack(fill="x", pady=2, anchor="w")
     # def resetLogout(self):
     #     lambda:self.ShowFrame("MenuFrame")
     #     self.loginButton.config(text="Login", width=10, command=lambda:self.LoginVerif(self.loginEntryUser.get(), self.loginEntryPassword.get()))
@@ -214,36 +216,24 @@ class ToDoList():
 
     def AddTasks(self, addedTask, dueDate, priorityLevel):              # adds tasks as checkboxes inside taskListFrame
     
-        with open("Registeredusers.json", "r") as fileread:
+        with open("RegisteredUsers.json", "r") as fileread:
             data = json.load(fileread)
             print(self.iterate-1)
             taskpackAdd = [addedTask, dueDate, priorityLevel]
-            print(data["tasks"][self.iterate-1])
-            with open("Registeredusers.json", "w") as filewrite:
+            data["tasks"][self.iterate-1].append(taskpackAdd)
+            with open("RegisteredUsers.json", "w") as filewrite:
                 json.dump(data, filewrite)
-    
-        taskItem = Frame(self.taskListFrame, bg="white")
 
-        checkBox = Checkbutton(
-            taskItem, text=addedTask,
-            command=lambda:self.RemoveTask(taskItem), bg="white", anchor="w"
-        )
-        checkBox.pack(side=LEFT, anchor="w")
-
-        priorityLevelDisplay = Label(taskItem, text=f"Priority: {priorityLevel}", anchor="w")
-        priorityLevelDisplay.pack(side=RIGHT, anchor="w")
-
-        dueDateDisplay = Label(taskItem, text=f"Due: {dueDate}", anchor="w")
-        dueDateDisplay.pack(side=RIGHT, anchor="w")
-
-        taskItem.pack(fill="x", pady=2, anchor="w")
+        self.displayTask(addedTask, dueDate, priorityLevel)
 
     def RemoveTask(self, task_item):           # removes the task frame
         task_item.destroy()
-        # with open("Registeredusers.json", "r") as file:
-        #     data = json.load(file)
-
-        #     with open("Registeredusers.json", "w") as file:
+        with open("RegisteredUsers.json", "r") as file:
+            data = json.load(file)
+            if task_item in data["tasks"][self.iterate-1]:
+                data["tasks"][self.iterate-1].remove(task_item)
+                with open("RegisteredUsers.json", "w") as file:
+                    json.dump(data, file)
 
 
     
